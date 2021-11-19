@@ -2,36 +2,48 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hive_sample/view_models/my_home_view_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class MyHomePage extends ConsumerWidget {
-  MyHomePage({Key? key, required this.title}) : super(key: key);
-
+class MyHomePage extends ConsumerStatefulWidget {
+  const MyHomePage({Key? key, required this.title}) : super(key: key);
   final String title;
 
-  final viewModel = MyHomeViewModel();
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends ConsumerState<MyHomePage> {
+  late MyHomeViewModel viewModel;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final _counter = ref.watch(counterProvider.state).state;
+  void initState() {
+    viewModel = MyHomeViewModel(ref);
+    viewModel.getAll();
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final recordList = ref.watch(recordListProvider.state).state;
     return Scaffold(
       appBar: AppBar(
-        title: Text(title),
+        title: Text(widget.title),
       ),
-      body: Center(
+      body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
+          children: List.generate(recordList.length, (index) {
+            final record = recordList[index];
+            return ListTile(
+              title: Text(record.number.toString()),
+              subtitle: Text(record.addDate.toString()),
+              onTap: () {
+                viewModel.delete(record);
+              },
+            );
+          }),
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => viewModel.increment(ref),
+        onPressed: () => viewModel.increment(),
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
