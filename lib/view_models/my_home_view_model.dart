@@ -9,8 +9,8 @@ final recordListProvider = StateProvider.autoDispose((ref) => <RecordModel>[]);
 class MyHomeViewModel {
   MyHomeViewModel(this.ref);
 
-  final repository = RecordRepository();
   final WidgetRef ref;
+  final repository = RecordRepository();
 
   increment() async {
     final record = RecordModel(DateTime.now(), Random().nextInt(10) + 1);
